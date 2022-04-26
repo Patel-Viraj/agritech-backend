@@ -1,0 +1,930 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0.0", 
+      "title": "Resume Parser",
+      "description": "Resume Parser Application API"
+      
+
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "tags": [
+      {
+        "name": "Users",
+        "description": "APIs that called by admin."
+      },
+      {
+          "name":"Common",
+          "description":"APIs that common for all."
+      },
+      {
+          "name":"Admin",
+          "description":"APIs that called by admin."
+      }
+    ],
+    "schemes": ["http"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+  
+
+  "paths": {
+    "/api/user/signup":{
+      "post":{
+          "tags":["Users"],
+          "description":"Sign up process for users:\n\n - At the time of signup user will be asked to insert basic details about user in json as shown in example. \n - Then user will get OTP on both email and mobile number.\n - Then user have to enter OTP, if user's mobile number and email is verified then user can login else user have to verify email and mobile number.\n - You can use admin/user/company any of the given roles.",
+          "parameters":[
+              {
+                  "name": "user",
+                  "in": "body",
+                  "description": "User that we want to create",
+                  "schema": {
+                      "type":"object",
+                      "properties": {
+                          "role": {
+                            "type": "string",
+                          
+                            "example":"user/admin/company"
+                          },
+                          "firstName": {
+                              "type": "string",
+                                "example":"Himanshu"
+                            },
+                          "lastName": {
+                              "type": "string",
+                              "example":"Bhavsar"
+                            },
+                          "companyName": {
+                              "type": "string",
+                              "example":"VortexWeb"
+                            },
+                          "mobile": {
+                              "type": "string",
+                              "example":"9929921000"
+                            },
+                          "email": {
+                            "type": "string",
+                            "example":"himanshu@gmail.com"
+                          },
+                          "password": {
+                              "type": "string",
+                              "example":"Himanshu@123"
+                            }
+                        }
+                  }
+                }
+          ],
+          "produces":["application/json"],
+          "responses": {
+                "409":{
+                    "description":"User already exist."
+                },
+                "201":{
+                    "description":"User created successfully."
+                }
+          }
+      }
+  },
+  
+  "/api/login": {
+
+      "post": {
+          "tags":["Common"],
+          "description":"Login will be common in our system.\n - The classification of admin, user and company will be role based.\n - After login an authentication token will be generated using JWT.\n - Token will be required for after login api's  like edit, logout and other.",
+          "parameters":[
+              {
+                  "name": "user",
+                  "in": "body",
+                  "description": "User that we want to create",
+                  "schema": {
+                      "type":"object",
+                      "properties": {
+                          
+                          "email": {
+                            "type": "string",
+                            "example":"himanshu@gmail.com"
+                          },
+                          "password": {
+                              "type": "string",
+                              "example":"Himanshu@123"
+                            }
+                        }
+                  }
+                }
+          ],
+          "requestBody": {
+              "content": 
+                "application/json"
+          },
+          "produces":["application/json"],
+          "responses": {
+              "202": {
+                  "description":"Logged in successfully"
+              },
+              "404":{
+                  "description":"User not exist please signup"
+              },
+              "302":{
+                  "description":"Token found user is already logged in redirect to home"
+              }          
+            }
+      }
+  },
+  "/api/logout/{userId}": {
+    "get": {
+        "tags":["Common"],
+        "description":"Logout will also be common.\n - At the time of logout Authentication token will be passed in header.\n - And with url we have to pass user id on base of id our update query to clear token.\n - After logout token will be erased from both frontend and backend so user can't access after login apis. ",
+        "parameters":[
+            {
+                "name":"userId",
+                "in":"path",
+                "description":"User id to be logout",
+                "schema": { 
+                    "type":"string",
+                    "properties":"userId"
+                }
+            }
+        ],
+        "produces":["application/json"],
+        "responses": {
+            "200": {
+                "description":"Logged out successfully"
+            },
+            "304":{
+                "description":"Token can't be updated something went wrong."
+            }
+        }
+    }
+  },
+  "/api/changepassword": {
+
+        "post": {
+            "tags":["Common"],
+            "description":"This will also be common for all users.\n - At the time of change password user have to enter their email and old passoword with new password.\n - Also Authentication token will be passed in header so that our backend can verify that this is our authenticated user.",
+            "parameters":[
+                {
+                    "name":"Authorization",
+                    "in":"header",
+                    "description":"Token for auhtorization",
+                    "schema": {
+                        "type":"string",
+                        "properties":"Authorization"
+                    }
+                },
+                {
+                    "name": "user",
+                    "in": "body",
+                    "description": "For Change Password",
+                    "schema": {
+                        "type":"object",
+                        "properties": {
+                            
+                            "email": {
+                              "type": "string",
+                              "example":"himanshu@gmail.com"
+                            },
+                            "password": {
+                                "type": "string",
+                                "example":"Himanshu@123"
+                            },
+                            "newpassword": {
+                                "type": "string",
+                                "example":"Himanshu@456"
+                            }
+                          }
+                       }
+                  }
+            ],
+            "requestBody": {
+                "content": 
+                  "application/json"
+            },
+            "produces":["application/json"],
+            "responses": {
+                "201": {
+                    "description":"Password changes successfully"
+                },
+                "404":{
+                    "description":"User not found."
+                }
+            }
+        }  
+  },
+  "/api/forgotpassword/setpassword": {
+
+      "post": {
+          "tags":["Common"],
+          "description":"This will also be common for all users. \n - In this api user will be asked to enter email if email is exist then link for reseting password will be sent on that email.",
+          "parameters":[
+              {
+                  "name": "user",
+                  "in": "body",
+                  "description": "Forgetpassword",
+                  "schema": {
+                      "type":"object",
+                      "properties": {
+                          
+                          "email": {
+                            "type": "string",
+                            "example":"himanshu@gmail.com"
+                          },
+                          "newpassword": {
+                          "type": "string       ",
+                          "example":"Himanshu@123"
+                          }
+                        }
+                      }
+                }
+          ],
+          "requestBody": {
+              "content": 
+                "application/json"
+          },
+          "produces":["application/json"],
+          "responses": {
+              "201": {
+                  "description":"Password changed successfully."
+                 },
+                "404":{
+                    "description":"User not found."
+                }
+          }
+      }
+  },
+  "/api/admin/create":{
+    "post":{
+        "tags":["Admin"],
+        "description":"Admin will be created by system.\n - This api will ask basic details about admin as shown in example.",
+        "parameters":[
+            {
+                "name": "Admin",
+                "in": "body",
+                "description": "Admin that we want to create",
+                "schema": {
+                    "type":"object",
+                    "properties": {
+                        "email": {
+                          "type": "string",
+                          "example":"admin@gmail.com"
+                        },
+                        "password": {
+                            "type": "string",
+                            "example":"Admin@123"
+                          }
+                      }
+                }
+              }
+        ],
+        "produces":["application/json"],
+        "responses": {
+            "201": {
+                "description":"Admin Created successfully"
+              },
+              
+              "409":{
+                  "description":"User already exist." 
+              }
+        }
+    }
+    },
+    "/api/user/getAll": {
+        "get":{
+            "tags":["Admin"],
+            "description":"This would be our admin api when admin wants user's(company) list at that time this API will be called by admin with authentication token in header and this api will return all user data in JSON form where role is equal to \"company\" or \"user\"",
+            "parameters":[ {
+                "name":"Authorization",
+                "in":"header",
+                "description":"Token for auhtorization",
+                "schema": {
+                    "type":"string",
+                    "properties":"Authorization"
+                }
+            }
+            ],
+            "produces":["application/json"],
+            "responses": {
+                "204":{
+                    "description":"Data not found."
+                },
+                "200":{
+                    "description":"Found data."
+                }
+            }
+
+        }
+    },
+    "api/verifyEmailOTP":{
+        "post":{
+            "tags":["Common"],
+            "description":"After adding basic details in signup.\n - If details fullfill the frontend validation conditions after that OTP will be send in enterd mail.\n - If mailOTP is verified then and only then user can login.",
+            "parameters":[
+                {
+                    "name":"emaiil",
+                    "in":"header",
+                    "description":"Registred email",
+                    "schema": {
+                        "type":"string",
+                        "properties":"email"
+                    }
+                },
+                {
+                    "name":"OTP",
+                    "in":"body",
+                    "description":"OTP send in mail",
+                    "schema": {
+                        "type":"string",
+                        "properties": {
+                            "mailotp": {
+                              "type": "string",
+                              "example":"123456"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "api/companyDetails/updateCompanyDetails":{
+        "put":{
+            "tags":["Users"],
+            "description":"After user login then user will have 2 edit options.\n - Edit CompanyDetails.\n - Edit personal details.\n - On Edit CompanyDetails this api will be called with data user filled in form.",
+            "parameters":[
+                {
+                    "name":"companydetials",
+                    "in":"body",
+                    "description":"Details to be update in database.",
+                    "schema":{
+                        "type":"object",
+                        "properties":{
+                            "addressline1":{
+                                "type":"string"
+                            },
+                            "addressline2":{
+                                "type":"string"
+                            },
+                            "city":{
+                                "type":"string"
+                            },
+                            "state":{
+                                "type":"string"
+                            },
+                            "postcode":{
+                                "type":"string"
+                            },
+                            "country":{
+                                "type":"string",
+                                "example":"ObjectID()"
+                            },
+                            "companyContactFirstname":{
+                                "type":"string"
+                            },
+                            "companyContactLastname":{
+                                "type":"string"
+                            },
+                            "companyemail":{
+                                "type":"string"
+                            },
+                            "aboutCompany":{
+                                "type":"string"
+                            },
+                            "size":{
+                                "type":"string",
+                                "example":"ObjectID()"
+                            },
+                            "photoUpload":{
+                                "type":"string",
+                                "example":"Photos of company"
+                            }
+                            
+                        }
+
+                    }
+                }
+            ]
+        }
+    },
+    "/api/folder/creterootfolder": {
+
+        "post": {
+            "tags":["Users"],
+            "description":"To create root folder this api will be called with owner(company or user)id in header and name of folder in body.",
+            "parameters":[
+                {
+                    "name":"owner",
+                    "in":"header",
+                    "description":"Id of current logged in user(company).",
+                    "schema":{
+                        "type":"string",
+                        "properties":"owner"
+                    }
+                },
+                {
+                    "name": "folder",
+                    "in": "body",
+                    "description": "Folder name",
+                    "schema": {
+                        "type":"object",
+                        "properties": {
+                            
+                            "name": {
+                              "type": "string",
+                              "example":"Resumes2020"
+                            }
+                          }
+                    }
+                  }
+            ],
+            "requestBody": {
+                "content": 
+                  "application/json"
+            },
+            "produces":["application/json"],
+            "responses": {
+                "201": {
+                    "description":"Folder created successfully!!"
+                }          
+              }
+        }
+    },
+    "/api/folder/createsubfolder": {
+        "post": {
+            "tags":["Users"],
+            "description":"To create sub folder this api will be called with owner(company or user)id and parent folder id in header and name of folder in body.",
+            "parameters":[
+                {
+                    "name":"owner",
+                    "in":"header",
+                    "description":"Id of current logged in user(company).",
+                    "schema":{
+                        "type":"object",
+                        "properties":{
+                            "owner":{
+                                "type":"string",
+                                "example":"ObjectID()"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name":"parent",
+                    "in":"header",
+                    "description":"Id of parent folder.",
+                    "schema":{
+                        "type":"object",
+                        "properties":{
+                            "parent":{
+                                "type":"string",
+                                "example":"ObjectID()"
+                            }
+                        }
+                    }
+                },
+                
+                {
+                    "name": "folder",
+                    "in": "body",
+                    "description": "Folder name",
+                    "schema": {
+                        "type":"object",
+                        "properties": {
+                            
+                            "name": {
+                              "type": "string",
+                              "example":"Resumes2020"
+                            }
+                          }
+                    }
+                  }
+            ],
+            "requestBody": {
+                "content": 
+                  "application/json"
+            },
+            "produces":["application/json"],
+            "responses": {
+                "201": {
+                    "description":"Folder created successfully!!"
+                }          
+              }
+        }
+    },
+    "api/folder/getrootfolder":{
+        "get":{
+            "tags":["Users"],
+            "description":"In this apis owner id will be passed so that the folders owned by this particular owner will be send back in reponse.",
+            "parameters":[
+                {
+                    "name":"owner",
+                    "in":"header",
+                    "description":"Owner id(user or company id)",
+                    "schema":{
+                        "type":"string",
+                        "properties":"owner"
+                    }
+                }
+            ],
+            "produces":["application/json"],
+            "responses": {
+                "201": {
+                    "description":"success"
+                }          
+              }
+        }
+    },
+    "api/folder/getsubfolder":{
+        "get":{
+            "tags":["Users"],
+            "description":"In this apis owner id and parent folder id will be passed so that the folders owned by this particular owner will be send back in reponse.",
+            "parameters":[
+                {
+                    "name":"owner",
+                    "in":"header",
+                    "description":"Owner id(user or company id)",
+                    "schema":{
+                        "type":"string",
+                        "properties":"owner"
+                    }
+                },
+                {
+                    "name":"parent",
+                    "in":"header",
+                    "description":"Parent folder id",
+                    "schema":{
+                        "type":"string",
+                        "properties":"parent"
+                    }
+                }
+            ],
+            "produces":["application/json"],
+            "responses": {
+                "201": {
+                    "description":"success"
+                }          
+              }
+        }
+    },
+    "api/folder/downloadFile/{id}":{
+        "get":{
+            "tags":["Users"],
+            "description":"In this api file id will be passed in url and file will be retruned and will be downloaded from fornt end.",
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"Id of file to download.",
+                    "schema": { 
+                        "type":"string",
+                        "properties":"id"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "schema":{
+                        "type":"file"
+                    }
+                }
+            }
+        }
+    },
+    "api/folder/deleteFile/{id}":{
+        "get":{
+            "tags":["Users"],
+            "description":"In this api file id will be passed in url and file will be deleted from database.",
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"Id of file to delete.",
+                    "schema": { 
+                        "type":"string",
+                        "properties":"id"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"File deleted successfully"
+                }
+            }
+        }
+    },
+    "api/folder/files":{
+        "post": {
+            "tags":["Users"],
+            "summary": "Uploads file in main screen.",
+            "description":"In this apis files will be passed and id of owner will be passed because this opration will be performed in main screen.",
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                  "name":"owner",
+                  "in":"header",
+                  "description":"Owner id because files will be linked with logged in entity.",
+                  "schema":{
+                      "type":"string",
+                      "properties":"owner"
+                  }  
+              },
+                {
+                "in": "formData",
+                "name": "files",
+                "type": "file",
+                "description": "The files to upload."
+              }
+            ],
+            "responses":{
+                "201":{
+                    "description":"success"
+                }
+            }
+        }
+     
+    },
+    "api/folder/uploadfilesinfolder":{
+        "post": {
+            "tags":["Users"],
+            "summary": "Uploads file in folder.",
+            "description":"In this apis files will be passed and id of parent will be passed because this opration will be performed in main screen.",
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                  "name":"parent",
+                  "in":"header",
+                  "description":"parent(folder) id because files will be uploaded in folder.",
+                  "schema":{
+                      "type":"string",
+                      "properties":"parent"
+                  }  
+              },
+                {
+                "in": "formData",
+                "name": "files",
+                "type": "file",
+                "description": "The files to upload."
+              }
+            ],
+            "responses":{
+                "201":{
+                    "description":"success"
+                }
+            }
+        }
+     
+    },
+    "api/folder/getMainFiles":{
+        "get":{
+            "tags":["Users"],
+            "description":"In this apis owner id will be passed so that the files owned by this particular owner will be send back in response.",
+            "parameters":[
+                {
+                    "name":"owner",
+                    "in":"header",
+                    "description":"Owner id(user or company id)",
+                    "schema":{
+                        "type":"string",
+                        "properties":"owner"
+                    }
+                }
+            ],
+            "produces":["application/json"],
+            "responses": {
+                "201": {
+                    "description":"success"
+                }          
+              }
+        }
+    },
+    "api/folder/getSubFiles":{
+        "get":{
+            "tags":["Users"],
+            "description":"In this apis parent id will be passed so that the files from this particular folder will be send back in response.",
+            "parameters":[
+                {
+                    "name":"parent",
+                    "in":"header",
+                    "description":"Parent id(user or company id)",
+                    "schema":{
+                        "type":"string",
+                        "properties":"parent"
+                    }
+                }
+            ],
+            "produces":["application/json"],
+            "responses": {
+                "201": {
+                    "description":"success"
+                }          
+              }
+        }
+    },
+    "api/masterTable/addCompanyType":{
+        "post":{
+            "tags":["Admin"],
+            "description":"Admin will add company type",
+            "parameters":[
+                {
+                    "name": "company type",
+                    "in": "body",
+                    "description": "Company type to be added in database",
+                    "schema": {
+                        "type":"object",
+                        "properties": {
+                            
+                            "company_type": {
+                              "type": "company type",
+                              "example":"NGO"
+                            }
+                          }
+                    }
+                  }
+            ],
+            "responses":{
+                "201":{
+                    "description":"Company type added in database."
+                }
+            }
+        }
+    },
+    "api/masterTable/addIndustryType":{
+        "post":{
+            "tags":["Admin"],
+            "description":"Admin will add Industry type",
+            "parameters":[
+                {
+                    "name": "industry type",
+                    "in": "body",
+                    "description": "Industry type to be added in database",
+                    "schema": {
+                        "type":"object",
+                        "properties": {
+                            
+                            "industry_type": {
+                              "type": "industry type",
+                              "example":"private"
+                            }
+                          }
+                    }
+                  }
+            ],
+            "responses":{
+                "201":{
+                    "description":"Industry type added in database."
+                }
+            }
+        }
+    },
+    "api/masterTable/addSpeciality":{
+        "post":{
+            "tags":["Admin"],
+            "description":"Admin will add Speciality",
+            "parameters":[
+                {
+                    "name": "speciality",
+                    "in": "body",
+                    "description": "Speciality type to be added in database",
+                    "schema": {
+                        "type":"object",
+                        "properties": {
+                            
+                            "speciality": {
+                              "type": "speciality",
+                              "example":"Cloud"
+                            }
+                          }
+                    }
+                  }
+            ],
+            "responses":{
+                "201":{
+                    "description":"speciality type added in database."
+                }
+            }
+        }
+    },
+    "api/masterTable/getAllCompanyTypes":{
+        "get":{
+            "tags":["Users"],
+            "description":"This api will return all company types.",
+            "responses":{
+                "200":{
+                    "description":"success"
+                }
+            }
+        }
+    },
+    "api/masterTable/getAllIndustryTypes":{
+        "get":{
+            "tags":["Users"],
+            "description":"This api will return all industry types.",
+            "responses":{
+                "200":{
+                    "description":"success"
+                }
+            }
+        }
+    },
+    "api/masterTable/getAllSpecialities":{
+        "get":{
+            "tags":["Users"],
+            "description":"This api will return all speciality.",
+            "responses":{
+                "200":{
+                    "description":"success"
+                }
+            }
+        }
+    },
+    "api/masterTable/getCompanySize":{
+        "get":{
+            "tags":["Users"],
+            "description":"This api will return all company size.",
+            "responses":{
+                "200":{
+                    "description":"success"
+                }
+            }
+        }
+    },
+    "api/masterTable/getAllCountry":{
+        "get":{
+            "tags":["Users"],
+            "description":"This api will return all country.",
+            "responses":{
+                "200":{
+                    "description":"success"
+                }
+            }
+        }
+    },
+    "api/masterTable/deleteCompanyType/{id}":{
+        "delete":{
+            "tags":["Admin"],
+            "description":"This api will delete particular company type whose id is passed in url.",
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"id of company type to delete",
+                    "schema":{
+                        "type":"string",
+                        "properties":"id"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"deleted successfully"
+                }
+            }
+        }
+    },
+    "api/masterTable/deleteSpeciality/{id}":{
+        "delete":{
+            "tags":["Admin"],
+            "description":"This api will delete particular speciality whose id is passed in url.",
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"id of speciality to delete",
+                    "schema":{
+                        "type":"string",
+                        "properties":"id"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"deleted successfully"
+                }
+            }
+        }
+    },
+    "api/masterTable/deleteIndustryType/{id}":{
+        "delete":{
+            "tags":["Admin"],
+            "description":"This api will delete particular industry type whose id is passed in url.",
+            "parameters":[
+                {
+                    "name":"id",
+                    "in":"path",
+                    "description":"id of industry type to delete",
+                    "schema":{
+                        "type":"string",
+                        "properties":"id"
+                    }
+                }
+            ],
+            "responses":{
+                "200":{
+                    "description":"deleted successfully"
+                }
+            }
+        }
+    }
+  }
+}
