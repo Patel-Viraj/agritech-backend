@@ -16,7 +16,7 @@ pipeline{
         stage('Start Application') {
             steps {
                  sh "echo Start Application"
-                 sh 'ssh -t ubuntu@3.219.167.108 "cd /home/ubuntu/agritech/ && pm2 restart index.js"'  
+                 sh 'ssh ubuntu@3.219.167.108 "cd /home/ubuntu/agritech/ && pm2 restart index.js"'  
             }
         }    
     }
