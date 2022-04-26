@@ -54,6 +54,7 @@ io.on('connection', (socket) => {
   // });
 
 
-http.listen(PORT, (req, res) => {
+http.listen((PORT, err ) => {
+       if (err)return console.error(err);
     console.log(`app is listening to PORT ${PORT}`)
 });
