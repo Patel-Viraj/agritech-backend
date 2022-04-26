@@ -1,5 +1,5 @@
 module.exports={
-    loginError:"Incorrect email ",
+    loginError:"Incorrect email or password ",
     emailTaken:"Email Already Taken",
     somethingWrong:"Something Went Wrong",
     notFound:"Not found",
